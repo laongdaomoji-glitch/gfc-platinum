@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>GFC Platinum — บันทึกต้นทุนราย IVF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E2A2B;
+    --teal:#125050;
+    --teal-deep:#0A3838;
+    --paper:#F6F4EE;
+    --card:#FFFFFF;
+    --line:#DCD6C6;
+    --coral:#D9603B;
+    --coral-deep:#B84A29;
+    --ok:#3E7A52;
+    --muted:#6B7573;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Sarabun',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .app{max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--teal-deep);
+    padding-bottom:14px;margin-bottom:22px;
+  }
+  .masthead h1{
+    font-size:22px;margin:0;font-weight:700;color:var(--teal-deep);
+    letter-spacing:.2px;
+  }
+  .masthead .sub{
+    font-size:12.5px;color:var(--muted);margin-top:3px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .badge{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    background:var(--teal-deep);color:#fff;padding:5px 10px;border-radius:3px;
+    letter-spacing:.4px;
+  }
+  #tabs{margin-bottom:20px;}
+  #tabs button{
+    font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:600;
+    padding:9px 16px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--muted);cursor:pointer;border-radius:6px 6px 0 0;
+    border-bottom:none;transition:.15s;
+  }
+  #tabs button.active{
+    background:var(--teal-deep);color:#fff;border-color:var(--teal-deep);
+  }
+  #tabs button:not(.active):hover{background:#EFEADA;color:var(--ink);}
+  .panel{
+    background:var(--card);border:1.5px solid var(--line);border-radius:0 6px 6px 6px;
+    padding:22px;margin-top:-1px;
+  }
+  h2{font-size:17px;margin:0 0 4px;color:var(--teal-deep);}
+  .hint{font-size:13px;color:var(--muted);margin:0 0 18px;}
+  label{font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;}
+  input,select{
+    font-family:'Sarabun',sans-serif;font-size:14.5px;padding:8px 10px;
+    border:1.5px solid var(--line);border-radius:5px;background:#fff;color:var(--ink);
+    width:100%;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--teal);}
+  .row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:150px;}
+  .item-line{
+    display:flex;gap:10px;align-items:end;margin-bottom:8px;
+    background:#FAF8F1;padding:10px;border-radius:5px;border:1px solid var(--line);
+  }
+  .item-line .sel{flex:2.2;}
+  .item-line .amt{flex:1;}
+  .item-line button{
+    background:none;border:none;color:var(--coral-deep);font-size:13px;
+    cursor:pointer;padding:8px 6px;font-weight:600;
+  }
+  .btn{
+    font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;
+    padding:9px 18px;border-radius:5px;border:none;cursor:pointer;
+  }
+  .btn-add-line{background:#fff;border:1.5px dashed var(--teal);color:var(--teal-deep);width:100%;margin-bottom:16px;}
+  .btn-add-line:hover{background:#EAF4F2;}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-primary:hover{background:var(--coral-deep);}
+  .btn-ghost{background:none;color:var(--muted);border:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;}
+  th{
+    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    color:var(--muted);text-transform:uppercase;letter-spacing:.4px;
+    border-bottom:2px solid var(--teal-deep);padding:6px 8px;
+  }
+  td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:#FAF8F1;}
+  .num{font-family:'IBM Plex Mono',monospace;text-align:right;}
+  .empty{
+    text-align:center;color:var(--muted);padding:26px 10px;font-size:13.5px;
+    border:1.5px dashed var(--line);border-radius:6px;
+  }
+  .total-strong{font-weight:700;color:var(--teal-deep);}
+  .grand{background:#EAF4F2;}
+  .grand td{font-weight:700;border-top:2px solid var(--teal-deep);color:var(--teal-deep);}
+  .flash{
+    font-size:13px;padding:9px 12px;border-radius:5px;margin-bottom:14px;
+    background:#EAF4F2;color:var(--ok);border:1px solid #BFE0CC;display:none;
+  }
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+  .toolbar select{max-width:220px;}
+  .del{color:var(--coral-deep);cursor:pointer;font-size:12px;font-weight:600;}
+  .shared-note{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);
+    margin-top:26px;text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div>
+      <h1>GFC Platinum — บันทึกต้นทุนราย IVF</h1>
+      <div class="sub">CardCode → ก้อน 1 / ก้อน 2 / AEP / FET → สรุปต้นทุนต่อเคส</div>
+    </div>
+    <div class="badge" id="caseCount">0 เคส</div>
+  </div>
+
+  <div id="tabs" style="display:flex;align-items:center;gap:14px;flex-wrap:nowrap;overflow-x:auto;">
+    <button data-tab="dashboard" class="active" style="flex-shrink:0;white-space:nowrap;">รายงานสรุปต้นทุน Platinum</button>
+    <div style="width:1px;align-self:stretch;background:var(--line);flex-shrink:0;"></div>
+    <div style="flex-shrink:0;position:relative;">
+      <button id="pkgGroupToggle" onclick="togglePkgGroup()" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+        <span>รายละเอียดข้อมูล Package Platinum</span>
+        <span id="pkgGroupChevron" style="font-size:11px;transition:transform .15s;">▾</span>
+      </button>
+      <div id="pkgGroupButtons" style="display:none;gap:4px;flex-wrap:wrap;margin-top:8px;">
+        <button data-tab="cases">เคส</button>
+        <button data-tab="ก้อน1">ก้อน 1</button>
+        <button data-tab="ก้อน2">ก้อน 2</button>
+        <button data-tab="AEP">AEP</button>
+        <button data-tab="FET">FET</button>
+        <button data-tab="summary">สรุป</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="flash" class="flash"></div>
+
+  <!-- CASES -->
+  <div class="panel tabpanel" id="panel-cases" style="display:none;">
+    <h2>เคสทั้งหมด</h2>
+    <p class="hint">เพิ่ม CardCode ก่อน จึงจะเลือกเคสนี้ได้ในหน้าคีย์ข้อมูลของแต่ละก้อน — ถ้าเปิดแพ็กเกจรอบใหม่ ไม่ต้องเพิ่มเคสซ้ำ ให้ไปเลือก "รอบที่" ตอนกรอกรายการยา/บริการแทน</p>
+    <div class="row">
+      <div>
+        <label>CardCode</label>
+        <input id="newCaseCode" placeholder="เช่น CN-10-2500680">
+      </div>
+      <div>
+        <label>หมายเหตุ (ถ้ามี)</label>
+        <input id="newCaseNote" placeholder="เช่น DONOR, ชื่อผู้ป่วย">
+      </div>
+      <div style="flex:0 0 auto;align-self:end;">
+        <button class="btn btn-primary" onclick="addCase()">+ เพิ่มเคส</button>
+      </div>
+    </div>
+    <table id="casesTable"></table>
+  </div>
+
+  <!-- PACKAGE PANELS (ก้อน1, ก้อน2, AEP share the same renderer) -->
+  <div class="panel tabpanel" id="panel-ก้อน1" style="display:none;">
+    <h2>บันทึกการใช้ยา/บริการ — ก้อน 1</h2>
+    <p class="hint">เลือกเคส วันที่ใช้บริการ แล้วเพิ่มรายการยา/แล็บที่ใช้ในวันนั้น กด "บันทึก" เพื่อเก็บเป็น 1 รายการ</p>
+    <div id="form-ก้อน1"></div>
+    <div class="toolbar">
+      <strong>รายการที่บันทึกแล้ว</strong>
+      <select id="filter-ก้อน1" onchange="renderEntries('ก้อน1')"><option value="">— ทุกเคส —</option></select>
+    </div>
+    <div id="list-ก้อน1"></div>
+  </div>
+
+  <div class="panel tabpanel" id="panel-ก้อน2" style="display:none;">
+    <h2>บันทึกการใช้ยา/บริการ — ก้อน 2</h2>
+    <p class="hint">เลือกเคส วันที่ใช้บริการ แล้วเพิ่มรายการยา/เวชภัณฑ์ที่ใช้ในวันนั้น กด "บันทึก" เพื่อเก็บเป็น 1 รายการ</p>
+    <div id="form-ก้อน2"></div>
+    <div class="toolbar">
+      <strong>รายการที่บันทึกแล้ว</strong>
+      <select id="filter-ก้อน2" onchange="renderEntries('ก้อน2')"><option value="">— ทุกเคส —</option></select>
+    </div>
+    <div id="list-ก้อน2"></div>
+  </div>
+
+  <div class="panel tabpanel" id="panel-AEP" style="display:none;">
+    <h2>บันทึกการใช้ยา/บริการ — AEP</h2>
+    <p class="hint">เลือกเคส วันที่ใช้บริการ แล้วเพิ่มรายการยา/บริการที่ใช้ในวันนั้น กด "บันทึก" เพื่อเก็บเป็น 1 รายการ</p>
+    <div id="form-AEP"></div>
+    <div class="toolbar">
+      <strong>รายการที่บันทึกแล้ว</strong>
+      <select id="filter-AEP" onchange="renderEntries('AEP')"><option value="">— ทุกเคส —</option></select>
+    </div>
+    <div id="list-AEP"></div>
+  </div>
+
+  <div class="panel tabpanel" id="panel-FET" style="display:none;">
+    <h2>บันทึกการใช้ยา/บริการ — FET</h2>
+    <p class="hint">เลือกเคส วันที่ใช้บริการ แล้วเพิ่มรายการยา/บริการที่ใช้ในวันนั้น กด "บันทึก" เพื่อเก็บเป็น 1 รายการ</p>
+    <div id="form-FET"></div>
+    <div class="toolbar">
+      <strong>รายการที่บันทึกแล้ว</strong>
+      <select id="filter-FET" onchange="renderEntries('FET')"><option value="">— ทุกเคส —</option></select>
+    </div>
+    <div id="list-FET"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="panel tabpanel" id="panel-summary" style="display:none;">
+    <h2>สรุปต้นทุนต่อเคส</h2>
+    <p class="hint">รวมยอดจากทุกก้อนแบบเรียลไทม์ — เทียบเท่าชีต "สรุป" ในไฟล์ Excel เดิม</p>
+    <table id="summaryTable"></table>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="panel tabpanel" id="panel-dashboard">
+    <h2>รายงานสรุปต้นทุน Platinum</h2>
+    <p class="hint">สัดส่วนค่าใช้จ่ายแต่ละหมวดหมู่ เทียบเป็นเปอร์เซ็นต์ของยอดรวม (คำนวณจากรายการยา/บริการที่บันทึกไว้จริง)</p>
+    <div id="dashTabs" style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;"></div>
+    <div id="dashboardContent"></div>
+  </div>
+
+  <div class="shared-note">ข้อมูลนี้ใช้ร่วมกันทุกคนที่เปิดหน้านี้ — บันทึกแล้วเพื่อนร่วมทีมจะเห็นเมื่อรีเฟรชหน้า</div>
+</div>
+
+<script>
+const PACKAGES = {
+  'ก้อน1': ['DF/6,000','ยานอกPack','E2 (Estradiol)','LH (Luteinizing Hormone)','FSH (Follicle-Stimulating Hormone)',
+    'OUT-29161 Prolactin/OUT-29003 CBC','IVF-05026 Provera 10 mg','STI-22012 Pergovaris pen 450/225 U',
+    'STI-22011 Pergovaris 150/75 U','STI-22018 Pergovaris 300/150 U','STI-22009 Menopur 600 U','STI-22010 Menopur 75 U',
+    'STI-22006 Gonal-F 450 U3','STI-22005 Gonal-F 300 U','STI-22006 Gonal-F 450 U2','STI-22016 IVF-M HP Inj. 75IU',
+    'STI-22017 IVF-M Inj. 150IU','ANT-23001 Cetrotide 250 mcg',
+    'TRI-24001 Decapeptyl 0.1 mg','TRI-24002 Ovidrel 250 mcg',"GNR-04096 Hompaa Plus (30s'/box)",
+    'ถุงหิ้วเก็บอุณหภูมิ 21x26 ซม.','CHL-02001 Ferticult Flushing Medium','CHL-02018 Sil-Select Stock 100%',
+    'CHL-02046 Sperm Freeze 10 ml','CHR-01037 LH (Routine Lab)','อื่นๆ (ระบุเอง)'],
+  'ก้อน2': ['DF/18,000','AF/4,000','EF/11,000','PNF/350','RNF/600','CHL-02001 Ferticult Flushing Medium',
+    'CHL-02007 Global Total LP w/HEPES 50 ml','CHL-02009 Hyaluronidase-10 ml','CHL-02010 LiteOil-500 ml.',
+    'CHL-02014 Oil for TC in PET Bot 500 ml','CHL-02015 PVP 7% Ready-to-use','CHL-02018 Sil-Select Stock 100%',
+    'CHL-02028 Ferticult for Aspiration Medium','CHL-02033 Irvine Continuous Single Culture-NX',
+    "GNR-04042 Ultracet 3x10s'",'GNR-04045 Tylenol/Paracetamol 500 mg','INJ-03016 Dynastat 40 mg',
+    'GNR-04069 Parlodel 2.5 mg','INJ-03018 Fentanyl 0.1 mg/2 ml','INJ-03019 Midazolam/Dormicum 5 mg',
+    'INJ-03022 Onsia/Ondansetron 8 mg','INJ-03027 Fresofol/Propofol 1%','INJ-03029 0.9% NSS 500 ml',
+    'INJ-03031 Lidocaine PF 2%','SUA-07006 Oxygen Canular Adult','SUA-07015 Extension tube 18"',
+    'SUA-07023 Laparotomy Pack SET OPU','SUA-07085 Hi-Oxy Mask w/Bag Adult','SUA-07090 PICSI Dish',
+    'SUA-07093 SwimCount Harvester','SUL-10114 Needle Single Lumen','SUL-10183 ICSI Pipettes Spiked Tip',
+    'SUL-10208 Holding Pipettes','SUL-10094 Biopsy Pipette','SUL-10105 ICSI Injection Pipettes',
+    'CHL-02020 Vitrification Solution Set 110','BOL-90051 Extra NGS (next embryo)','DF NGS/7,500','EF NGS/5,000',
+    'NGS ตัวแรก','อื่นๆ (ระบุเอง)'],
+  'AEP': ['DF-OPD 300','DF-OPD 200','GNR-04097 Probiotic Lactosupple',"IVF-05014 Estrofem 2 mg 28s'/box",
+    'IVF-05024 Progynova 2 mg','IVF-05023 Primolut-N 5 mg','IVF-05003 Aspirin 81 mg','IVF-05010 Duphaston 10 mg',
+    'IVF-05043 Crinone Gel 8% 15 App','OUT-29063 Progesterone (P4)',
+    'SER-18002 อัลตร้าซาวด์รังไข่ Ultrasound Follicle (TVS) / [DF : 250]',
+    'ถุงหิ้วเก็บอุณหภูมิ 21x26 ซม.','อื่นๆ (ระบุเอง)'],
+  'FET': ['DF-OPD','PNR/RNF','EF','CHL-02014 Oil for TC in PET Bot 500 ml','CHL-02021 Warming Solution Set 205',
+    'CHL-02032 EmbryoGlue 10 ml.','CHL-02033 Irvine Continuous Single Culture-NX Complete',
+    'GNR-04097 Probiotic Lactosupple Soft Capsule (20 Tablets/Pack)','IVF-05003 Aspirin 81 mg',
+    'IVF-05010 Duphaston 10 mg','IVF-05024 Progynova 2 mg','IVF-05043 Crinone Gel 8% 15 App',
+    "IVF-05044 (Ventolin) Salbutamol 2 mg foil 10s'","IVF-05014 Estrofem 2 mg 28s'/box",
+    'IVF-05006 Cyclogest 400 mg','IVF-05015 Glucophage/Metformin 500 mg','OUT-29063 Progesterone (P4)',
+    'ถุงหิ้วเก็บอุณหภูมิ 21x26 ซม.','SUA-07025 N.W.Drapes 100x100 cm Aperture#L Sterile',
+    'SUL-10125 The Tulip Embryo Transfer','อื่นๆ (ระบุเอง)']
+};
+
+// ===== เชื่อมกับ Google Sheets ผ่าน Apps Script Web App =====
+// วาง URL ที่ได้จากขั้นตอน "Deploy" ของ Apps Script ตรงนี้ (ดูวิธีทำในไฟล์ Code.gs / คำแนะนำที่แนบมา)
+const API_URL = 'https://script.google.com/macros/s/AKfycbw_v2os1qDEwIbD9b_qC9yLiolxSY-tMIleD26fJ4QE3gU_p4nI2a2QChfo8W-1ZL95Gw/exec';
+
+async function apiGet(key){
+  const res = await fetch(API_URL + '?key=' + encodeURIComponent(key));
+  const data = await res.json();
+  return data.value;
+}
+async function apiSet(key, value){
+  // ส่งเป็น text/plain โดยไม่ตั้ง header เอง เพื่อเลี่ยง CORS preflight ที่ Apps Script เว็บแอพไม่รองรับ
+  await fetch(API_URL, { method:'POST', body: JSON.stringify({key, value}) });
+}
+
+let cases = [];
+let usage = { 'ก้อน1': [], 'ก้อน2': [], 'AEP': [], 'FET': [] };
+
+async function loadAll(){
+  if(API_URL.includes('PASTE_YOUR')){
+    flash('ยังไม่ได้ตั้งค่า API_URL — ดูขั้นตอนเชื่อมต่อ Google Sheets ในคำแนะนำที่แนบมา');
+  }
+  try{
+    const v = await apiGet('cases');
+    cases = v ? JSON.parse(v) : [];
+  }catch(e){ cases = []; }
+  cases = cases.map(c=> ({ code: c.code, note: c.note||'' }));
+  for(const pkg of Object.keys(usage)){
+    try{
+      const v = await apiGet('usage:'+pkg);
+      usage[pkg] = v ? JSON.parse(v) : [];
+    }catch(e){ usage[pkg] = []; }
+  }
+  renderCases();
+  for(const pkg of Object.keys(usage)){ renderForm(pkg); renderEntries(pkg); }
+  renderSummary();
+  renderDashboard();
+}
+
+async function saveCases(){
+  await apiSet('cases', JSON.stringify(cases));
+}
+async function saveUsage(pkg){
+  await apiSet('usage:'+pkg, JSON.stringify(usage[pkg]));
+}
+
+function flash(msg){
+  const f = document.getElementById('flash');
+  f.textContent = msg; f.style.display='block';
+  setTimeout(()=>f.style.display='none', 2200);
+}
+
+// ---- Tabs ----
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  if(!btn.dataset.tab) return; // toggle button or other non-tab button, handled separately
+  document.querySelectorAll('#tabs button[data-tab]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tabpanel').forEach(p=>p.style.display='none');
+  document.getElementById('panel-'+btn.dataset.tab).style.display='block';
+  if(btn.dataset.tab==='summary') renderSummary();
+  if(btn.dataset.tab==='dashboard') renderDashboard();
+});
+function togglePkgGroup(){
+  const group = document.getElementById('pkgGroupButtons');
+  const chevron = document.getElementById('pkgGroupChevron');
+  const toggleBtn = document.getElementById('pkgGroupToggle');
+  const isOpen = group.style.display === 'flex';
+  group.style.display = isOpen ? 'none' : 'flex';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  toggleBtn.classList.toggle('active', !isOpen);
+}
+
+// ---- Cases ----
+function renderCases(){
+  document.getElementById('caseCount').textContent = cases.length + ' เคส';
+  const t = document.getElementById('casesTable');
+  const collator = new Intl.Collator(undefined, {numeric:true, sensitivity:'base'});
+  const sorted = cases.map((c,i)=>({...c, origIndex:i})).sort((a,b)=> collator.compare(a.code,b.code));
+  if(cases.length===0){ t.innerHTML = '<tr><td class="empty">ยังไม่มีเคส — เพิ่ม CardCode ด้านบนก่อน</td></tr>'; }
+  else{
+    t.innerHTML = '<tr><th>CardCode</th><th>หมายเหตุ</th><th></th></tr>' +
+      sorted.map(c=>`<tr><td>${c.code}</td><td>${c.note||'—'}</td><td><span class="del" onclick="editCaseNote(${c.origIndex})" style="color:var(--teal-deep);margin-right:10px;">แก้ไข</span><span class="del" onclick="removeCase(${c.origIndex})">ลบ</span></td></tr>`).join('');
+  }
+  // refresh case dropdowns everywhere (sorted order)
+  for(const pkg of Object.keys(usage)){
+    const sel = document.getElementById('caseSel-'+pkg);
+    if(sel){
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">เลือกเคส…</option>' + sorted.map(c=>`<option value="${c.code}">${c.code}</option>`).join('');
+      sel.value = cur;
+    }
+    const filt = document.getElementById('filter-'+pkg);
+    if(filt){
+      const cur = filt.value;
+      filt.innerHTML = '<option value="">— ทุกเคส —</option>' + sorted.map(c=>`<option value="${c.code}">${c.code}</option>`).join('');
+      filt.value = cur;
+    }
+  }
+}
+async function addCase(){
+  const code = document.getElementById('newCaseCode').value.trim();
+  const note = document.getElementById('newCaseNote').value.trim();
+  if(!code){ flash('กรุณากรอก CardCode'); return; }
+  if(cases.some(c=>c.code===code)){ flash('CardCode นี้มีอยู่แล้ว'); return; }
+  cases.push({code, note});
+  await saveCases();
+  document.getElementById('newCaseCode').value=''; document.getElementById('newCaseNote').value='';
+  renderCases(); renderSummary();
+  flash('เพิ่มเคส '+code+' แล้ว');
+}
+async function removeCase(i){
+  if(!confirm('ลบเคส '+cases[i].code+' ? (ไม่ลบรายการที่บันทึกไว้)')) return;
+  cases.splice(i,1);
+  await saveCases();
+  renderCases(); renderSummary();
+}
+async function editCaseNote(i){
+  const current = cases[i].note || '';
+  const updated = prompt('แก้ไขหมายเหตุสำหรับ '+cases[i].code+':', current);
+  if(updated === null) return; // cancelled
+  cases[i].note = updated.trim();
+  await saveCases();
+  renderCases();
+  flash('อัปเดตหมายเหตุ '+cases[i].code+' แล้ว');
+}
+
+// ---- Package forms ----
+let editingIndex = { 'ก้อน1': null, 'ก้อน2': null, 'AEP': null, 'FET': null };
+
+function renderForm(pkg){
+  const el = document.getElementById('form-'+pkg);
+  const isEditing = editingIndex[pkg] !== null;
+  el.innerHTML = `
+    ${isEditing ? `<div class="flash" style="display:block;background:#FFF4E8;color:#B84A29;border-color:#F0D2B8;">กำลังแก้ไขรายการเดิม — แก้ไขแล้วกด "อัปเดตรายการ" ด้านล่าง</div>` : ''}
+    <div class="row">
+      <div>
+        <label>เคส (CardCode)</label>
+        <select id="caseSel-${pkg}"><option value="">เลือกเคส…</option>${cases.map(c=>`<option value="${c.code}">${c.code}</option>`).join('')}</select>
+      </div>
+      <div style="flex:0.6;min-width:100px;">
+        <label>รอบที่</label>
+        <select id="roundSel-${pkg}">
+          <option value="1">รอบ 1</option>
+          <option value="2">รอบ 2</option>
+          <option value="3">รอบ 3</option>
+          <option value="4">รอบ 4</option>
+          <option value="5">รอบ 5</option>
+        </select>
+      </div>
+      <div>
+        <label>วันที่ใช้บริการ</label>
+        <input type="date" id="dateSel-${pkg}">
+      </div>
+    </div>
+    <div id="lines-${pkg}"></div>
+    <button class="btn-add-line" onclick="addLine('${pkg}')">+ เพิ่มรายการยา/บริการ</button>
+    <button class="btn btn-primary" onclick="saveEntry('${pkg}')">${isEditing ? 'อัปเดตรายการ' : 'บันทึกรายการวันนี้'}</button>
+    ${isEditing ? `<button class="btn btn-ghost" onclick="cancelEdit('${pkg}')" style="margin-left:8px;">ยกเลิกการแก้ไข</button>` : ''}
+  `;
+  const entry = isEditing ? usage[pkg][editingIndex[pkg]] : null;
+  if(entry){
+    document.getElementById('caseSel-'+pkg).value = entry.code;
+    document.getElementById('roundSel-'+pkg).value = entry.round || 1;
+    document.getElementById('dateSel-'+pkg).value = entry.date || '';
+    const wrap = document.getElementById('lines-'+pkg);
+    entry.items.forEach(it=>{
+      addLine(pkg);
+      const lastLine = wrap.lastElementChild;
+      lastLine.querySelector('.itemSel').value = it.name;
+      lastLine.querySelector('.amtInput').value = it.amount;
+    });
+  } else {
+    addLine(pkg);
+  }
+}
+function addLine(pkg){
+  const wrap = document.getElementById('lines-'+pkg);
+  const id = 'line-'+pkg+'-'+Date.now()+Math.random().toString(36).slice(2,6);
+  const div = document.createElement('div');
+  div.className='item-line'; div.id=id;
+  div.innerHTML = `
+    <div class="sel">
+      <label>รายการ</label>
+      <select class="itemSel">${PACKAGES[pkg].map(n=>`<option value="${n}">${n}</option>`).join('')}</select>
+    </div>
+    <div class="amt">
+      <label>จำนวนเงิน (บาท)</label>
+      <input type="number" class="amtInput" placeholder="0.00" step="0.01">
+    </div>
+    <button onclick="document.getElementById('${id}').remove()">ลบ</button>
+  `;
+  wrap.appendChild(div);
+}
+async function saveEntry(pkg){
+  const caseSel = document.getElementById('caseSel-'+pkg);
+  const roundSel = document.getElementById('roundSel-'+pkg);
+  const dateSel = document.getElementById('dateSel-'+pkg);
+  const code = caseSel.value;
+  const round = parseInt(roundSel.value) || 1;
+  if(!code){ flash('กรุณาเลือกเคส'); return; }
+  const lines = [...document.querySelectorAll('#lines-'+pkg+' .item-line')];
+  const items = lines.map(l=>({
+    name: l.querySelector('.itemSel').value,
+    amount: parseFloat(l.querySelector('.amtInput').value) || 0
+  })).filter(it=>it.amount>0);
+  if(items.length===0){ flash('กรุณากรอกจำนวนเงินอย่างน้อย 1 รายการ'); return; }
+  if(editingIndex[pkg] !== null){
+    const idx = editingIndex[pkg];
+    const prevSavedAt = usage[pkg][idx].savedAt;
+    usage[pkg][idx] = { code, round, date: dateSel.value || '', items, savedAt: prevSavedAt };
+    editingIndex[pkg] = null;
+    await saveUsage(pkg);
+    renderForm(pkg); renderEntries(pkg); renderSummary();
+    flash('อัปเดตรายการ '+code+' รอบ '+round+' ('+pkg+') แล้ว');
+  } else {
+    usage[pkg].push({ code, round, date: dateSel.value || '', items, savedAt: Date.now() });
+    await saveUsage(pkg);
+    renderForm(pkg); renderEntries(pkg); renderSummary();
+    flash('บันทึก '+code+' รอบ '+round+' ('+pkg+') แล้ว');
+  }
+}
+function editEntry(pkg, i){
+  editingIndex[pkg] = i;
+  renderForm(pkg);
+  document.getElementById('form-'+pkg).scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelEdit(pkg){
+  editingIndex[pkg] = null;
+  renderForm(pkg);
+}
+function renderEntries(pkg){
+  const filt = document.getElementById('filter-'+pkg).value;
+  const list = document.getElementById('list-'+pkg);
+  let rows = usage[pkg].map((e,i)=>({...e, i})).filter(e=> !filt || e.code===filt);
+  rows.sort((a,b)=>b.savedAt-a.savedAt);
+  if(rows.length===0){ list.innerHTML = '<div class="empty">ยังไม่มีรายการที่บันทึก</div>'; return; }
+  list.innerHTML = `<table>
+    <tr><th>CardCode</th><th>วันที่</th><th>รายการ</th><th class="num">รวม (บาท)</th><th></th></tr>
+    ${rows.map(e=>{
+      const total = e.items.reduce((s,it)=>s+it.amount,0);
+      const detail = e.items.map(it=>it.name+' — '+it.amount.toLocaleString(undefined,{minimumFractionDigits:2})).join('<br>');
+      const roundBadge = e.round && e.round > 1 ? ` <span style="font-size:11px;font-weight:600;color:var(--teal-deep);background:#EAF4F2;padding:2px 7px;border-radius:4px;">รอบ ${e.round}</span>` : '';
+      return `<tr><td>${e.code}${roundBadge}</td><td>${e.date||'—'}</td><td style="font-size:12.5px">${detail}</td>
+        <td class="num total-strong">${total.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+        <td><span class="del" onclick="editEntry('${pkg}', ${e.i})" style="color:var(--teal-deep);margin-right:10px;">แก้ไข</span><span class="del" onclick="removeEntry('${pkg}', ${e.i})">ลบ</span></td></tr>`;
+    }).join('')}
+  </table>`;
+}
+async function removeEntry(pkg, i){
+  if(!confirm('ลบรายการนี้?')) return;
+  usage[pkg].splice(i,1);
+  if(editingIndex[pkg] !== null){ editingIndex[pkg] = null; renderForm(pkg); }
+  await saveUsage(pkg);
+  renderEntries(pkg); renderSummary();
+}
+
+// ---- Summary ----
+function renderSummary(){
+  const t = document.getElementById('summaryTable');
+  if(cases.length===0){ t.innerHTML='<tr><td class="empty">ยังไม่มีเคส</td></tr>'; return; }
+  const totalsByPkg = {};
+  for(const pkg of Object.keys(usage)){
+    totalsByPkg[pkg] = {};
+    usage[pkg].forEach(e=>{
+      const key = e.code + '#' + (e.round || 1);
+      const t2 = e.items.reduce((s,it)=>s+it.amount,0);
+      totalsByPkg[pkg][key] = (totalsByPkg[pkg][key]||0) + t2;
+    });
+  }
+  // build combined list of (code, round) rows: from case list (round 1 default) + any round found in usage entries
+  const rowMap = new Map();
+  cases.forEach(c=> rowMap.set(c.code+'#1', {code:c.code, round:1}));
+  Object.keys(usage).forEach(pkg=>{
+    usage[pkg].forEach(e=>{
+      const round = e.round || 1;
+      const key = e.code+'#'+round;
+      if(!rowMap.has(key)) rowMap.set(key, {code:e.code, round});
+    });
+  });
+  const collator2 = new Intl.Collator(undefined, {numeric:true, sensitivity:'base'});
+  const combinedRows = [...rowMap.values()].sort((a,b)=> collator2.compare(a.code,b.code) || a.round-b.round);
+
+  let grand = 0;
+  let sumK1 = 0, sumK2 = 0, sumAep = 0, sumFet = 0;
+  const rows = combinedRows.map(c=>{
+    const key = c.code+'#'+c.round;
+    const k1 = totalsByPkg['ก้อน1'][key]||0;
+    const k2 = totalsByPkg['ก้อน2'][key]||0;
+    const aep = totalsByPkg['AEP'][key]||0;
+    const fet = totalsByPkg['FET'][key]||0;
+    const rowTotal = k1+k2+aep+fet;
+    grand += rowTotal; sumK1 += k1; sumK2 += k2; sumAep += aep; sumFet += fet;
+    const roundBadge = c.round > 1 ? ` <span style="font-size:11px;font-weight:600;color:var(--teal-deep);background:#EAF4F2;padding:2px 7px;border-radius:4px;">รอบ ${c.round}</span>` : '';
+    return `<tr><td>${c.code}${roundBadge}</td>
+      <td class="num">${k1.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${k2.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${aep.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${fet.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num total-strong">${rowTotal.toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>`;
+  });
+  const caseRoundCount = combinedRows.length;
+  t.innerHTML = `<tr><th>CardCode</th><th class="num">ก้อน 1</th><th class="num">ก้อน 2</th><th class="num">AEP</th><th class="num">FET</th><th class="num">TOTAL</th></tr>
+    ${rows.join('')}
+    <tr class="grand"><td>รวมทั้งหมด</td>
+      <td class="num">${sumK1.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${sumK2.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${sumAep.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${sumFet.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${grand.toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>
+    <tr class="grand" style="background:#FAF8F1;"><td>ค่าเฉลี่ย/เคส (${caseRoundCount} เคส)</td>
+      <td class="num">${(sumK1/caseRoundCount).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${(sumK2/caseRoundCount).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${(sumAep/caseRoundCount).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${(sumFet/caseRoundCount).toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      <td class="num">${(grand/caseRoundCount).toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>`;
+}
+
+// ---- Dashboard ----
+const LAB_SUPPLY_CODES = ['SUA-07090','SUA-07093','SUL-10114','SUL-10183','SUL-10208','SUL-10094','SUL-10105'];
+function categorize(name){
+  if(/^DF NGS|^EF NGS/.test(name)) return 'ค่าธรรมเนียมวิชาชีพ';
+  if(/NGS/.test(name)) return 'NGS';
+  if(/^DF|^AF\/|^EF(\/|$)|^PNF\/|^RNF\/|^PNR\/|DF-OPD|^SER-/.test(name)) return 'ค่าธรรมเนียมวิชาชีพ';
+  if(name.startsWith('CHL-')) return 'น้ำยา LAB';
+  if(LAB_SUPPLY_CODES.some(code=>name.startsWith(code))) return 'เวชภัณฑ์สิ้นเปลืองLAB';
+  if(name.startsWith('SUA-')||name.startsWith('SUL-')) return 'เวชภัณฑ์พยาบาล';
+  if(name.startsWith('INJ-')) return 'ค่ายา';
+  if(name.startsWith('BOL-')) return 'NGS';
+  if(name.startsWith('OUT-')||name.startsWith('CHR-')||/^E2 \(|^LH \(|^FSH \(|Progesterone/.test(name)) return 'ค่าตรวจวินิจฉัย';
+  if(name.startsWith('STI-')||name.startsWith('ANT-')||name.startsWith('TRI-')||name.startsWith('IVF-')||name.startsWith('GNR-')) return 'ค่ายา';
+  if(name.includes('ถุงหิ้ว')) return 'เวชภัณฑ์พยาบาล';
+  return 'อื่นๆ';
+}
+const DASH_COLORS = {'ค่ายา':'#2a78d6','น้ำยา LAB':'#eb6834','ค่าธรรมเนียมวิชาชีพ':'#1baf7a','ค่าตรวจวินิจฉัย':'#eda100','เวชภัณฑ์สิ้นเปลืองLAB':'#e87ba4','เวชภัณฑ์พยาบาล':'#4a3aa7','NGS':'#008300','ยาฉีด/ยาระหว่างหัตถการ':'#e34948','อื่นๆ':'#888780'};
+let dashActiveTab = 'ทั้งหมด';
+function fmtBaht(n){ return Math.round(n).toLocaleString(); }
+function computeDashData(pkgFilter){
+  const pkgsToUse = pkgFilter === 'ทั้งหมด' ? Object.keys(usage) : [pkgFilter];
+  const catTotals = {};
+  let total = 0;
+  const codesSeen = new Set();
+  pkgsToUse.forEach(pkg=>{
+    (usage[pkg]||[]).forEach(e=>{
+      codesSeen.add(e.code + '#' + (e.round || 1));
+      e.items.forEach(it=>{
+        const cat = categorize(it.name);
+        catTotals[cat] = (catTotals[cat]||0) + it.amount;
+        total += it.amount;
+      });
+    });
+  });
+  return { total, caseCount: codesSeen.size, cats: catTotals };
+}
+function renderDashboard(){
+  const tabsEl = document.getElementById('dashTabs');
+  const tabNames = ['ทั้งหมด', ...Object.keys(usage)];
+  tabsEl.innerHTML = tabNames.map(k=>{
+    const isActive = k === dashActiveTab;
+    return `<button data-k="${k}" style="padding:7px 14px;border-radius:6px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;border:1.5px solid ${isActive?'var(--teal-deep)':'var(--line)'};background:${isActive?'#EAF4F2':'#fff'};color:${isActive?'var(--teal-deep)':'var(--muted)'};cursor:pointer;">${k}</button>`;
+  }).join('');
+  tabsEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{ dashActiveTab = b.dataset.k; renderDashboard(); });
+
+  const d = computeDashData(dashActiveTab);
+  const el = document.getElementById('dashboardContent');
+  if(d.total === 0){
+    el.innerHTML = '<div class="empty">ยังไม่มีข้อมูลรายการยา/บริการที่บันทึกไว้ในก้อนนี้ — ลองแท็บอื่น หรือเพิ่มรายการก่อน</div>';
+    return;
+  }
+  const sorted = Object.entries(d.cats).sort((a,b)=>b[1]-a[1]);
+  const topCat = sorted[0];
+  const topPct = (topCat[1]/d.total*100);
+
+  let fetCompareHtml = '';
+  let outsidePkgTableHtml = '';
+  let fetItemHighlightHtml = '';
+  if(dashActiveTab === 'FET'){
+    let embryoGlueAmt = 0;
+    (usage['FET']||[]).forEach(e=> e.items.forEach(it=>{
+      if(it.name.startsWith('CHL-02032')) embryoGlueAmt += it.amount;
+    }));
+    if(d.total > 0 && embryoGlueAmt > 0){
+      const pct = (embryoGlueAmt/d.total*100);
+      fetItemHighlightHtml = `
+        <div style="background:#fff;border:1px solid var(--line);border-top:3px solid #4a3aa7;border-radius:10px;padding:16px 18px;margin-bottom:16px;max-width:360px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">CHL-02032 EmbryoGlue 10 ml. (เฉพาะ FET)</p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ยอดรายการนี้</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(embryoGlueAmt)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${pct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:#4a3aa7;"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">ของต้นทุนรวมในก้อน FET (${fmtBaht(d.total)} บาท)</p>
+        </div>`;
+    }
+  }
+  if(dashActiveTab === 'ก้อน1'){
+    const totalCasesK1 = new Set();
+    (usage['ก้อน1']||[]).forEach(e=> totalCasesK1.add(e.code+'#'+(e.round||1)));
+
+    function drugHighlightCard(label, codes, color, excludeKeys){
+      excludeKeys = excludeKeys || new Set();
+      let amt = 0;
+      const drugCases = new Set();
+      (usage['ก้อน1']||[]).forEach(e=>{
+        const key = e.code+'#'+(e.round||1);
+        if(excludeKeys.has(key)) return;
+        e.items.forEach(it=>{
+          if(codes.some(code=>it.name.startsWith(code))){
+            amt += it.amount;
+            drugCases.add(key);
+          }
+        });
+      });
+      if(d.total === 0 || amt === 0) return '';
+      const pct = (amt/d.total*100);
+      return `
+        <div style="background:#fff;border:1px solid var(--line);border-top:3px solid ${color};border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">${label}</p>
+          <p style="font-size:12px;color:var(--muted);margin:0 0 4px;">จำนวนเคสที่ใช้</p>
+          <p style="font-size:20px;font-weight:700;margin:0 0 12px;">${drugCases.size} <span style="font-size:13px;font-weight:400;color:var(--muted);">จาก ${totalCasesK1.size} เคส</span></p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ยอดรวม</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(amt)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${pct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:${color};"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">ของต้นทุนรวมในก้อน 1 (${fmtBaht(d.total)} บาท)</p>
+        </div>`;
+    }
+    function drugOverlapCard(label, codesA, codesB, color){
+      const casesA = new Set(), casesB = new Set();
+      (usage['ก้อน1']||[]).forEach(e=>{
+        const key = e.code+'#'+(e.round||1);
+        e.items.forEach(it=>{
+          if(codesA.some(code=>it.name.startsWith(code))) casesA.add(key);
+          if(codesB.some(code=>it.name.startsWith(code))) casesB.add(key);
+        });
+      });
+      const overlapKeys = new Set([...casesA].filter(k=>casesB.has(k)));
+      if(overlapKeys.size === 0) return '';
+      let amt = 0;
+      const allCodes = [...codesA, ...codesB];
+      (usage['ก้อน1']||[]).forEach(e=>{
+        const key = e.code+'#'+(e.round||1);
+        if(!overlapKeys.has(key)) return;
+        e.items.forEach(it=>{
+          if(allCodes.some(code=>it.name.startsWith(code))) amt += it.amount;
+        });
+      });
+      const pct = d.total > 0 ? (amt/d.total*100) : 0;
+      return `
+        <div style="background:#fff;border:1px solid var(--line);border-top:3px solid ${color};border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">${label}</p>
+          <p style="font-size:12px;color:var(--muted);margin:0 0 4px;">จำนวนเคสที่ใช้ทั้ง 2 ตัวร่วมกัน</p>
+          <p style="font-size:20px;font-weight:700;margin:0 0 12px;">${overlapKeys.size} <span style="font-size:13px;font-weight:400;color:var(--muted);">จาก ${totalCasesK1.size} เคส</span></p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ยอดรวม</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(amt)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${pct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:${color};"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">ยอดรวมยาทั้ง 2 กลุ่ม เฉพาะเคสที่ใช้ร่วมกัน — ของต้นทุนรวมในก้อน 1 (${fmtBaht(d.total)} บาท)</p>
+        </div>`;
+    }
+    const PERGO_CODES = ['STI-22012','STI-22011','STI-22018'];
+    const MENO_CODES = ['STI-22009','STI-22010'];
+    const pergoCasesRaw = new Set(), menoCasesRaw = new Set();
+    (usage['ก้อน1']||[]).forEach(e=>{
+      const key = e.code+'#'+(e.round||1);
+      e.items.forEach(it=>{
+        if(PERGO_CODES.some(code=>it.name.startsWith(code))) pergoCasesRaw.add(key);
+        if(MENO_CODES.some(code=>it.name.startsWith(code))) menoCasesRaw.add(key);
+      });
+    });
+    const pergoMenoOverlap = new Set([...pergoCasesRaw].filter(k=>menoCasesRaw.has(k)));
+    const drugCards = [
+      drugHighlightCard('Pergovaris (STI-22012 / STI-22011 / STI-22018)', PERGO_CODES, '#2a78d6', pergoMenoOverlap),
+      drugHighlightCard('Menopur (STI-22009 / STI-22010)', MENO_CODES, '#eda100', pergoMenoOverlap),
+      drugHighlightCard('Gonal-F (STI-22006 / STI-22005)', ['STI-22006','STI-22005'], '#1baf7a'),
+      drugHighlightCard('IVF-M (STI-22016 / STI-22017)', ['STI-22016','STI-22017'], '#e34948'),
+      drugOverlapCard('Pergovaris + Menopur (ใช้ร่วมกัน)', PERGO_CODES, MENO_CODES, '#8B5A8C')
+    ].filter(Boolean);
+    if(drugCards.length){
+      fetItemHighlightHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px;">${drugCards.join('')}</div>`;
+    }
+  }
+  if(dashActiveTab === 'ก้อน2'){
+    let bolAmt = 0;
+    let ngsTotal = 0;
+    (usage['ก้อน2']||[]).forEach(e=> e.items.forEach(it=>{
+      const cat = categorize(it.name);
+      if(cat === 'NGS'){
+        ngsTotal += it.amount;
+        if(it.name.startsWith('BOL-90051')) bolAmt += it.amount;
+      }
+    }));
+    const k2Cards = [];
+    if(ngsTotal > 0 && bolAmt > 0){
+      const pct = (bolAmt/ngsTotal*100);
+      k2Cards.push(`
+        <div style="background:#fff;border:1px solid var(--line);border-top:3px solid #008300;border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">BOL-90051 Extra NGS (เทียบกับหมวด NGS)</p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ยอด BOL-90051</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(bolAmt)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">หมวด NGS ทั้งหมด</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(ngsTotal)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${pct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:#008300;"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">ของหมวด NGS ในก้อน 2 (${fmtBaht(ngsTotal)} บาท)</p>
+        </div>`);
+    }
+    const OUTSIDE_PKG_K2_CODES = ['SUA-07090','SUA-07093','CHL-02020'];
+    let outsideK2Amt = 0;
+    (usage['ก้อน2']||[]).forEach(e=> e.items.forEach(it=>{
+      if(OUTSIDE_PKG_K2_CODES.some(code=>it.name.startsWith(code))) outsideK2Amt += it.amount;
+    }));
+    if(d.total > 0 && outsideK2Amt > 0){
+      const pct = (outsideK2Amt/d.total*100);
+      k2Cards.push(`
+        <div style="background:#fff;border:1px solid var(--line);border-top:3px solid #eb6834;border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">ต้นทุนนอก package (SUA-07090 / SUA-07093 / CHL-02020)</p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ยอดนอก package</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(outsideK2Amt)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ต้นทุนรวมในก้อน2</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(d.total)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${pct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(pct,100)}%;background:#eb6834;"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">ของต้นทุนรวมในก้อน 2 (${fmtBaht(d.total)} บาท)</p>
+        </div>`);
+    }
+    if(k2Cards.length){
+      fetItemHighlightHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px;">${k2Cards.join('')}</div>`;
+    }
+  }
+  if(dashActiveTab === 'ทั้งหมด'){
+    const sumPkg = (pkg)=> (usage[pkg]||[]).reduce((s,e)=> s + e.items.reduce((s2,it)=>s2+it.amount,0), 0);
+    const fresh = sumPkg('ก้อน1') + sumPkg('ก้อน2');
+    const fet = sumPkg('FET');
+    const OUTSIDE_PKG_CODES = ['SUA-07090','SUA-07093','CHL-02020'];
+
+    const perCaseTotal = {};
+    const perCaseOutside = {};
+    Object.keys(usage).forEach(pkg=>{
+      (usage[pkg]||[]).forEach(e=>{
+        e.items.forEach(it=>{
+          perCaseTotal[e.code] = (perCaseTotal[e.code]||0) + it.amount;
+          if(pkg === 'ก้อน2' && OUTSIDE_PKG_CODES.some(code=>it.name.startsWith(code))){
+            perCaseOutside[e.code] = (perCaseOutside[e.code]||0) + it.amount;
+          }
+        });
+      });
+    });
+    const outsideTotalAll = Object.values(perCaseOutside).reduce((s,v)=>s+v,0);
+    const grandTotalAll = Object.values(perCaseTotal).reduce((s,v)=>s+v,0);
+    const k2TotalAll = sumPkg('ก้อน2');
+
+    // ก้อน1's "อื่นๆ" category total
+    let k1OtherAmt = 0;
+    (usage['ก้อน1']||[]).forEach(e=> e.items.forEach(it=>{
+      if(categorize(it.name) === 'อื่นๆ') k1OtherAmt += it.amount;
+    }));
+    const combinedOutside = k1OtherAmt + outsideTotalAll;
+
+    let cards = [];
+    // OPU (ก้อน2) -> ย้ายตัวอ่อนแล้ว (FET) — นับแยกตาม CardCode+รอบที่
+    const opuKeys = new Set();
+    (usage['ก้อน2']||[]).forEach(e=> opuKeys.add(e.code+'#'+(e.round||1)));
+    const fetKeys = new Set();
+    (usage['FET']||[]).forEach(e=> fetKeys.add(e.code+'#'+(e.round||1)));
+    let transferredCount = 0;
+    opuKeys.forEach(k=>{ if(fetKeys.has(k)) transferredCount++; });
+    if(opuKeys.size > 0){
+      const opuPct = (transferredCount/opuKeys.size*100);
+      cards.push(`
+        <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;">OPU (ก้อน 2) → ย้ายตัวอ่อนแล้ว (FET)</p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">OPU ทั้งหมด</p><p style="font-size:19px;font-weight:700;margin:0;">${opuKeys.size} เคส</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ย้ายตัวอ่อนแล้ว</p><p style="font-size:19px;font-weight:700;margin:0;">${transferredCount} เคส</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${opuPct.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(opuPct,100)}%;background:var(--coral);"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">นับแยกตาม CardCode+รอบที่ — เช่น CN-10-2600107 ทำ OPU รอบ 1 และรอบ 2 = นับเป็น 2 เคส</p>
+        </div>`);
+    }
+    if(fresh > 0 && combinedOutside > 0){
+      const outsidePctAll = (combinedOutside/fresh*100);
+      cards.push(`
+        <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;">
+          <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;">ต้นทุนนอก package รวมทุกเคส</p>
+          <div style="display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;">
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">รวมนอก package</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(combinedOutside)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">ต้นทุนรวมก้อน1+ก้อน2</p><p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(fresh)} บาท</p></div>
+            <div><p style="font-size:12px;color:var(--muted);margin:0 0 2px;">คิดเป็น</p><p style="font-size:19px;font-weight:700;margin:0;color:var(--teal-deep);">${outsidePctAll.toFixed(1)}%</p></div>
+          </div>
+          <div style="background:#F1EFE8;border-radius:3px;height:6px;margin-top:12px;overflow:hidden;"><div style="height:100%;width:${Math.min(outsidePctAll,100)}%;background:var(--coral);"></div></div>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">รวมยอด "อื่นๆ" ในก้อน1 (${fmtBaht(k1OtherAmt)} บาท) + นอก package ในก้อน2 (${fmtBaht(outsideTotalAll)} บาท)</p>
+        </div>`);
+    }
+    if(cards.length){
+      fetCompareHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px;">${cards.join('')}</div>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--teal-deep);color:#fff;border-radius:10px;padding:20px 24px;">
+        <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;opacity:.65;margin:0 0 6px;">ต้นทุนรวม</p>
+        <p style="font-size:34px;margin:0 0 12px;font-weight:700;">${fmtBaht(d.total)} บาท</p>
+        <div style="display:flex;gap:24px;border-top:1px solid rgba(255,255,255,.2);padding-top:10px;">
+          <div><p style="font-size:11px;opacity:.65;margin:0;">จำนวนเคส</p><p style="font-size:16px;font-weight:600;margin:2px 0 0;">${d.caseCount} เคส</p></div>
+          <div><p style="font-size:11px;opacity:.65;margin:0;">เฉลี่ยต่อเคส</p><p style="font-size:16px;font-weight:600;margin:2px 0 0;">${fmtBaht(d.total/(d.caseCount||1))} บาท</p></div>
+        </div>
+      </div>
+      <div style="background:#FAF8F1;border-radius:10px;padding:16px 18px;border:1px solid var(--line);">
+        <p style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;">หมวดสูงสุด</p>
+        <p style="font-size:14px;font-weight:600;margin:0;">${topCat[0]}</p>
+        <p style="font-size:22px;font-weight:700;margin:4px 0 0;color:var(--teal-deep);">${topPct.toFixed(1)}%</p>
+        <p style="font-size:12px;color:var(--muted);margin:4px 0 0;">${fmtBaht(topCat[1])} บาท</p>
+      </div>
+    </div>
+    ${fetItemHighlightHtml}
+    ${fetCompareHtml}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+      ${sorted.map(([cat,amt])=>{
+        const pct = (amt/d.total*100);
+        const color = DASH_COLORS[cat] || '#6B7573';
+        return `<div style="background:#fff;border:1px solid var(--line);border-top:3px solid ${color};border-radius:6px;padding:12px 14px;">
+          <p style="font-size:11px;color:var(--muted);margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${cat}</p>
+          <p style="font-size:19px;font-weight:700;margin:0;">${fmtBaht(amt)}</p>
+          <div style="background:#F1EFE8;border-radius:3px;height:5px;margin:8px 0 6px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};"></div></div>
+          <p style="font-size:12px;color:var(--muted);margin:0;">${pct.toFixed(1)}% ของยอดรวม</p>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+loadAll();
+</script>
+</body>
+</html>
