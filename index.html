@@ -1,55 +1,97 @@
-<div style="display:flex; flex-direction:column; gap:12px;">
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-  <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
-  <div style="font-size:13px;">เปิด <span style="font-family:var(--font-mono); font-size:12px;">github.com/laongdaomoji-glitch/gfc-platinum</span></div>
-</div>
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-  <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
-  <div style="flex:1; display:flex; align-items:center; gap:8px; border:0.5px solid var(--border-accent); border-radius:6px; padding:6px 10px;">
-    <i class="ti ti-file" style="font-size:16px; color:var(--text-secondary);" aria-hidden="true"></i>
-    <span style="font-size:13px; color:var(--text-accent);">index.html</span>
-  </div>
-</div>
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-  <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
-  <div style="font-size:13px; flex:1;">คลิกไอคอนดินสอ มุมขวาบนของกล่องโค้ด</div>
-  <div style="width:30px; height:30px; border-radius:6px; border:2px solid var(--border-danger); display:flex; align-items:center; justify-content:center;">
-    <i class="ti ti-edit" style="font-size:16px;" aria-hidden="true"></i>
-  </div>
-</div>
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px;">
-  <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-    <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
-    <div style="font-size:13px;">เลือกโค้ดทั้งหมดในช่องแก้ไข (Ctrl+A) แล้วลบทิ้ง</div>
-  </div>
-  <div style="background:var(--surface-1); border:2px dashed var(--border-danger); border-radius:6px; padding:16px; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:center;">
-    ช่องแก้ไขโค้ด (ว่างเปล่า)
-  </div>
-</div>
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px;">
-  <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-    <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">5</div>
-    <div style="font-size:13px;">วางโค้ดใหม่ที่ได้รับมาแทนที่</div>
-  </div>
-  <div style="background:var(--surface-1); border:2px solid var(--border-success); border-radius:6px; padding:12px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);">
-    &lt;!DOCTYPE html&gt;<br>&lt;html lang="th"&gt;<br>...
-  </div>
-</div>
-
-<div style="background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-  <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-accent); color:var(--text-accent); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; flex-shrink:0;">6</div>
-  <div style="font-size:13px; flex:1;">เลื่อนลงล่างสุด กดปุ่มนี้</div>
-  <div style="border:2px solid var(--border-danger); border-radius:6px; padding:6px 14px; font-size:12px; font-weight:500; background:var(--fill-success); color:var(--on-success);">
-    Commit changes
-  </div>
-</div>
-
-</div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>GFC Platinum — บันทึกต้นทุนราย IVF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E2A2B;
+    --teal:#125050;
+    --teal-deep:#0A3838;
+    --paper:#F6F4EE;
+    --card:#FFFFFF;
+    --line:#DCD6C6;
+    --coral:#D9603B;
+    --coral-deep:#B84A29;
+    --ok:#3E7A52;
+    --muted:#6B7573;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Sarabun',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .app{max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--teal-deep);
+    padding-bottom:14px;margin-bottom:22px;
+  }
+  .masthead h1{
+    font-size:22px;margin:0;font-weight:700;color:var(--teal-deep);
+    letter-spacing:.2px;
+  }
+  .masthead .sub{
+    font-size:12.5px;color:var(--muted);margin-top:3px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .badge{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    background:var(--teal-deep);color:#fff;padding:5px 10px;border-radius:3px;
+    letter-spacing:.4px;
+  }
+  #tabs{margin-bottom:20px;}
+  #tabs button{
+    font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:600;
+    padding:9px 16px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--muted);cursor:pointer;border-radius:6px 6px 0 0;
+    border-bottom:none;transition:.15s;
+  }
+  #tabs button.active{
+    background:var(--teal-deep);color:#fff;border-color:var(--teal-deep);
+  }
+  #tabs button:not(.active):hover{background:#EFEADA;color:var(--ink);}
+  .panel{
+    background:var(--card);border:1.5px solid var(--line);border-radius:0 6px 6px 6px;
+    padding:22px;margin-top:-1px;
+  }
+  h2{font-size:17px;margin:0 0 4px;color:var(--teal-deep);}
+  .hint{font-size:13px;color:var(--muted);margin:0 0 18px;}
+  label{font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;}
+  input,select{
+    font-family:'Sarabun',sans-serif;font-size:14.5px;padding:8px 10px;
+    border:1.5px solid var(--line);border-radius:5px;background:#fff;color:var(--ink);
+    width:100%;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--teal);}
+  .row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:150px;}
+  .item-line{
+    display:flex;gap:10px;align-items:end;margin-bottom:8px;
+    background:#FAF8F1;padding:10px;border-radius:5px;border:1px solid var(--line);
+  }
+  .item-line .sel{flex:2.2;}
+  .item-line .amt{flex:1;}
+  .item-line button{
+    background:none;border:none;color:var(--coral-deep);font-size:13px;
+    cursor:pointer;padding:8px 6px;font-weight:600;
+  }
+  .btn{
+    font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;
+    padding:9px 18px;border-radius:5px;border:none;cursor:pointer;
+  }
+  .btn-add-line{background:#fff;border:1.5px dashed var(--teal);color:var(--teal-deep);width:100%;margin-bottom:16px;}
+  .btn-add-line:hover{background:#EAF4F2;}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-primary:hover{background:var(--coral-deep);}
+  .btn-ghost{background:none;color:var(--muted);border:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;}
+  th{
+    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;
     color:var(--muted);text-transform:uppercase;letter-spacing:.4px;
     border-bottom:2px solid var(--teal-deep);padding:6px 8px;
   }
@@ -274,6 +316,21 @@ async function saveUsage(pkg){
   await apiSet('usage:'+pkg, JSON.stringify(usage[pkg]));
 }
 
+// ดึงข้อมูลล่าสุดจากเซิร์ฟเวอร์มาทับ usage[pkg]/cases ในเครื่อง — ใช้ก่อนบันทึกทุกครั้ง
+// เพื่อกันเหตุการณ์ "แท็บ/เครื่องอื่นเปิดค้างไว้ก่อนหน้า แล้วมาบันทึกทับข้อมูลใหม่ทีหลัง"
+async function refreshUsage(pkg){
+  try{
+    const v = await apiGet('usage:'+pkg);
+    usage[pkg] = v ? JSON.parse(v) : [];
+  }catch(e){ /* ถ้าดึงไม่ได้ ใช้ข้อมูลในเครื่องต่อไปเป็น fallback */ }
+}
+async function refreshCases(){
+  try{
+    const v = await apiGet('cases');
+    cases = v ? JSON.parse(v).map(c=>({code:c.code, note:c.note||''})) : cases;
+  }catch(e){ /* ถ้าดึงไม่ได้ ใช้ข้อมูลในเครื่องต่อไปเป็น fallback */ }
+}
+
 function flash(msg){
   const f = document.getElementById('flash');
   f.textContent = msg; f.style.display='block';
@@ -332,6 +389,7 @@ async function addCase(){
   const code = document.getElementById('newCaseCode').value.trim();
   const note = document.getElementById('newCaseNote').value.trim();
   if(!code){ flash('กรุณากรอก CardCode'); return; }
+  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
   if(cases.some(c=>c.code===code)){ flash('CardCode นี้มีอยู่แล้ว'); return; }
   cases.push({code, note});
   await saveCases();
@@ -340,19 +398,25 @@ async function addCase(){
   flash('เพิ่มเคส '+code+' แล้ว');
 }
 async function removeCase(i){
-  if(!confirm('ลบเคส '+cases[i].code+' ? (ไม่ลบรายการที่บันทึกไว้)')) return;
-  cases.splice(i,1);
+  const targetCode = cases[i].code;
+  if(!confirm('ลบเคส '+targetCode+' ? (ไม่ลบรายการที่บันทึกไว้)')) return;
+  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
+  const freshIdx = cases.findIndex(c=>c.code===targetCode);
+  if(freshIdx > -1){ cases.splice(freshIdx,1); }
   await saveCases();
   renderCases(); renderSummary();
 }
 async function editCaseNote(i){
+  const targetCode = cases[i].code;
   const current = cases[i].note || '';
-  const updated = prompt('แก้ไขหมายเหตุสำหรับ '+cases[i].code+':', current);
+  const updated = prompt('แก้ไขหมายเหตุสำหรับ '+targetCode+':', current);
   if(updated === null) return; // cancelled
-  cases[i].note = updated.trim();
+  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
+  const freshIdx = cases.findIndex(c=>c.code===targetCode);
+  if(freshIdx > -1){ cases[freshIdx].note = updated.trim(); }
   await saveCases();
   renderCases();
-  flash('อัปเดตหมายเหตุ '+cases[i].code+' แล้ว');
+  flash('อัปเดตหมายเหตุ '+targetCode+' แล้ว');
 }
 
 // ---- Package forms ----
@@ -436,14 +500,18 @@ async function saveEntry(pkg){
   })).filter(it=>it.amount>0);
   if(items.length===0){ flash('กรุณากรอกจำนวนเงินอย่างน้อย 1 รายการ'); return; }
   if(editingIndex[pkg] !== null){
-    const idx = editingIndex[pkg];
-    const prevSavedAt = usage[pkg][idx].savedAt;
-    usage[pkg][idx] = { code, round, date: dateSel.value || '', items, savedAt: prevSavedAt };
+    const prevSavedAt = usage[pkg][editingIndex[pkg]].savedAt;
+    await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
+    const freshIdx = usage[pkg].findIndex(e=>e.savedAt===prevSavedAt);
+    const updated = { code, round, date: dateSel.value || '', items, savedAt: prevSavedAt };
+    if(freshIdx > -1){ usage[pkg][freshIdx] = updated; }
+    else { usage[pkg].push(updated); flash('หมายเหตุ: รายการเดิมถูกลบ/แก้จากที่อื่นไปแล้ว ระบบเพิ่มเป็นรายการใหม่แทน'); }
     editingIndex[pkg] = null;
     await saveUsage(pkg);
     renderForm(pkg); renderEntries(pkg); renderSummary();
     flash('อัปเดตรายการ '+code+' รอบ '+round+' ('+pkg+') แล้ว');
   } else {
+    await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
     usage[pkg].push({ code, round, date: dateSel.value || '', items, savedAt: Date.now() });
     await saveUsage(pkg);
     renderForm(pkg); renderEntries(pkg); renderSummary();
@@ -479,7 +547,10 @@ function renderEntries(pkg){
 }
 async function removeEntry(pkg, i){
   if(!confirm('ลบรายการนี้?')) return;
-  usage[pkg].splice(i,1);
+  const targetSavedAt = usage[pkg][i].savedAt;
+  await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
+  const freshIdx = usage[pkg].findIndex(e=>e.savedAt===targetSavedAt);
+  if(freshIdx > -1){ usage[pkg].splice(freshIdx,1); }
   if(editingIndex[pkg] !== null){ editingIndex[pkg] = null; renderForm(pkg); }
   await saveUsage(pkg);
   renderEntries(pkg); renderSummary();
