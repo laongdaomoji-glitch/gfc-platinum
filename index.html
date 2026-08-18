@@ -276,13 +276,13 @@ const PACKAGES = {
 const API_URL = 'https://script.google.com/macros/s/AKfycbw_v2os1qDEwIbD9b_qC9yLiolxSY-tMIleD26fJ4QE3gU_p4nI2a2QChfo8W-1ZL95Gw/exec';
 
 async function apiGet(key){
-  const res = await fetch(API_URL + '?key=' + encodeURIComponent(key));
+  const res = await fetch(API_URL + '?key=' + encodeURIComponent(key) + '&_t=' + Date.now(), { cache: 'no-store' });
   const data = await res.json();
   return data.value;
 }
-async function apiSet(key, value){
-  // ส่งเป็น text/plain โดยไม่ตั้ง header เอง เพื่อเลี่ยง CORS preflight ที่ Apps Script เว็บแอพไม่รองรับ
-  await fetch(API_URL, { method:'POST', body: JSON.stringify({key, value}) });
+async function apiAction(action, payload){
+  // ส่งคำสั่ง "เพิ่ม/แก้/ลบ 1 รายการ" ไปให้ฝั่งเซิร์ฟเวอร์ทำแบบ atomic (มี lock กันชนกัน)
+  await fetch(API_URL, { method:'POST', body: JSON.stringify(Object.assign({action}, payload)) });
 }
 
 let cases = [];
@@ -309,15 +309,7 @@ async function loadAll(){
   renderDashboard();
 }
 
-async function saveCases(){
-  await apiSet('cases', JSON.stringify(cases));
-}
-async function saveUsage(pkg){
-  await apiSet('usage:'+pkg, JSON.stringify(usage[pkg]));
-}
-
-// ดึงข้อมูลล่าสุดจากเซิร์ฟเวอร์มาทับ usage[pkg]/cases ในเครื่อง — ใช้ก่อนบันทึกทุกครั้ง
-// เพื่อกันเหตุการณ์ "แท็บ/เครื่องอื่นเปิดค้างไว้ก่อนหน้า แล้วมาบันทึกทับข้อมูลใหม่ทีหลัง"
+// ดึงข้อมูลล่าสุดจากเซิร์ฟเวอร์มาแสดงผล (ใช้หลังบันทึกทุกครั้ง เพื่อให้เห็นข้อมูลจริงที่สุด)
 async function refreshUsage(pkg){
   try{
     const v = await apiGet('usage:'+pkg);
@@ -389,10 +381,10 @@ async function addCase(){
   const code = document.getElementById('newCaseCode').value.trim();
   const note = document.getElementById('newCaseNote').value.trim();
   if(!code){ flash('กรุณากรอก CardCode'); return; }
-  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
+  await refreshCases(); // เช็คซ้ำจากข้อมูลล่าสุดก่อนเตือนซ้ำ (server จะกันซ้ำให้อีกชั้นด้วย)
   if(cases.some(c=>c.code===code)){ flash('CardCode นี้มีอยู่แล้ว'); return; }
-  cases.push({code, note});
-  await saveCases();
+  await apiAction('appendCase', { item: { code, note } });
+  await refreshCases();
   document.getElementById('newCaseCode').value=''; document.getElementById('newCaseNote').value='';
   renderCases(); renderSummary();
   flash('เพิ่มเคส '+code+' แล้ว');
@@ -400,10 +392,8 @@ async function addCase(){
 async function removeCase(i){
   const targetCode = cases[i].code;
   if(!confirm('ลบเคส '+targetCode+' ? (ไม่ลบรายการที่บันทึกไว้)')) return;
-  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
-  const freshIdx = cases.findIndex(c=>c.code===targetCode);
-  if(freshIdx > -1){ cases.splice(freshIdx,1); }
-  await saveCases();
+  await apiAction('removeCase', { code: targetCode });
+  await refreshCases();
   renderCases(); renderSummary();
 }
 async function editCaseNote(i){
@@ -411,10 +401,8 @@ async function editCaseNote(i){
   const current = cases[i].note || '';
   const updated = prompt('แก้ไขหมายเหตุสำหรับ '+targetCode+':', current);
   if(updated === null) return; // cancelled
-  await refreshCases(); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
-  const freshIdx = cases.findIndex(c=>c.code===targetCode);
-  if(freshIdx > -1){ cases[freshIdx].note = updated.trim(); }
-  await saveCases();
+  await apiAction('updateCaseNote', { code: targetCode, note: updated.trim() });
+  await refreshCases();
   renderCases();
   flash('อัปเดตหมายเหตุ '+targetCode+' แล้ว');
 }
@@ -501,19 +489,16 @@ async function saveEntry(pkg){
   if(items.length===0){ flash('กรุณากรอกจำนวนเงินอย่างน้อย 1 รายการ'); return; }
   if(editingIndex[pkg] !== null){
     const prevSavedAt = usage[pkg][editingIndex[pkg]].savedAt;
-    await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
-    const freshIdx = usage[pkg].findIndex(e=>e.savedAt===prevSavedAt);
     const updated = { code, round, date: dateSel.value || '', items, savedAt: prevSavedAt };
-    if(freshIdx > -1){ usage[pkg][freshIdx] = updated; }
-    else { usage[pkg].push(updated); flash('หมายเหตุ: รายการเดิมถูกลบ/แก้จากที่อื่นไปแล้ว ระบบเพิ่มเป็นรายการใหม่แทน'); }
+    await apiAction('updateUsageEntry', { pkg, savedAt: prevSavedAt, entry: updated });
     editingIndex[pkg] = null;
-    await saveUsage(pkg);
+    await refreshUsage(pkg);
     renderForm(pkg); renderEntries(pkg); renderSummary();
     flash('อัปเดตรายการ '+code+' รอบ '+round+' ('+pkg+') แล้ว');
   } else {
-    await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
-    usage[pkg].push({ code, round, date: dateSel.value || '', items, savedAt: Date.now() });
-    await saveUsage(pkg);
+    const entry = { code, round, date: dateSel.value || '', items, savedAt: Date.now() };
+    await apiAction('appendUsageEntry', { pkg, entry });
+    await refreshUsage(pkg);
     renderForm(pkg); renderEntries(pkg); renderSummary();
     flash('บันทึก '+code+' รอบ '+round+' ('+pkg+') แล้ว');
   }
@@ -548,11 +533,9 @@ function renderEntries(pkg){
 async function removeEntry(pkg, i){
   if(!confirm('ลบรายการนี้?')) return;
   const targetSavedAt = usage[pkg][i].savedAt;
-  await refreshUsage(pkg); // ดึงล่าสุดจากเซิร์ฟเวอร์ก่อน กันแท็บอื่นบันทึกทับ
-  const freshIdx = usage[pkg].findIndex(e=>e.savedAt===targetSavedAt);
-  if(freshIdx > -1){ usage[pkg].splice(freshIdx,1); }
+  await apiAction('removeUsageEntry', { pkg, savedAt: targetSavedAt });
   if(editingIndex[pkg] !== null){ editingIndex[pkg] = null; renderForm(pkg); }
-  await saveUsage(pkg);
+  await refreshUsage(pkg);
   renderEntries(pkg); renderSummary();
 }
 
