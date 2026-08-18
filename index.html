@@ -273,7 +273,7 @@ const PACKAGES = {
 
 // ===== เชื่อมกับ Google Sheets ผ่าน Apps Script Web App =====
 // วาง URL ที่ได้จากขั้นตอน "Deploy" ของ Apps Script ตรงนี้ (ดูวิธีทำในไฟล์ Code.gs / คำแนะนำที่แนบมา)
-const API_URL = 'https://script.google.com/macros/s/AKfycbw_v2os1qDEwIbD9b_qC9yLiolxSY-tMIleD26fJ4QE3gU_p4nI2a2QChfo8W-1ZL95Gw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw04n9AeGpRc-G3VR0-cANtNbU4P352-4w0suN9VZRVMU4WJDIC1__60gbvrK7QGPAZUg/exec';
 
 async function apiGet(key){
   const res = await fetch(API_URL + '?key=' + encodeURIComponent(key) + '&_t=' + Date.now(), { cache: 'no-store' });
