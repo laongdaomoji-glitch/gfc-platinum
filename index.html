@@ -611,12 +611,13 @@ function categorize(name){
   if(name.startsWith('SUA-')||name.startsWith('SUL-')) return 'เวชภัณฑ์พยาบาล';
   if(name.startsWith('INJ-')) return 'ค่ายา';
   if(name.startsWith('BOL-')) return 'NGS';
-  if(name.startsWith('OUT-')||name.startsWith('CHR-')||/^E2 \(|^LH \(|^FSH \(|Progesterone/.test(name)) return 'ค่าตรวจวินิจฉัย';
+  if(name.startsWith('CHR-')) return 'น้ำยา Routine Lab';
+  if(name.startsWith('OUT-')||/^E2 \(|^LH \(|^FSH \(|Progesterone/.test(name)) return 'ค่าตรวจวินิจฉัย';
   if(name.startsWith('STI-')||name.startsWith('ANT-')||name.startsWith('TRI-')||name.startsWith('IVF-')||name.startsWith('GNR-')) return 'ค่ายา';
   if(name.includes('ถุงหิ้ว')) return 'เวชภัณฑ์พยาบาล';
   return 'อื่นๆ';
 }
-const DASH_COLORS = {'ค่ายา':'#2a78d6','น้ำยา LAB':'#eb6834','ค่าธรรมเนียมวิชาชีพ':'#1baf7a','ค่าตรวจวินิจฉัย':'#eda100','เวชภัณฑ์สิ้นเปลืองLAB':'#e87ba4','เวชภัณฑ์พยาบาล':'#4a3aa7','NGS':'#008300','ยาฉีด/ยาระหว่างหัตถการ':'#e34948','อื่นๆ':'#888780'};
+const DASH_COLORS = {'ค่ายา':'#2a78d6','น้ำยา LAB':'#eb6834','ค่าธรรมเนียมวิชาชีพ':'#1baf7a','ค่าตรวจวินิจฉัย':'#eda100','น้ำยา Routine Lab':'#6b4fa0','เวชภัณฑ์สิ้นเปลืองLAB':'#e87ba4','เวชภัณฑ์พยาบาล':'#4a3aa7','NGS':'#008300','ยาฉีด/ยาระหว่างหัตถการ':'#e34948','อื่นๆ':'#888780'};
 let dashActiveTab = 'ทั้งหมด';
 function fmtBaht(n){ return Math.round(n).toLocaleString(); }
 function computeDashData(pkgFilter){
